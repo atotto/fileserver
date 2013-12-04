@@ -19,42 +19,46 @@ var dir = flag.String("root", "./", "server root dir")
 func main() {
 	flag.Parse()
 
-	setServerRoot("/", *dir)
+	err := setServerRoot("/", *dir)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	addr := fmt.Sprintf("%s:%d", *addr, *port)
 	log.Printf("Starting server on: %s", addr)
 
-	err := http.ListenAndServe(addr, nil)
+	err = http.ListenAndServe(addr, nil)
 	if err != nil {
 		log.Printf("Server failed: ", err.Error())
 	}
 }
 
-func setServerRoot(mount, dir string) {
-	err := mustDirExist(dir)
-	if err != nil {
-		log.Fatal(err)
+func setServerRoot(mount, dir string) error {
+	if !IsDirExist(dir) {
+		return errors.New(dir + ": No such directory")
 	}
 
 	path, err := filepath.Abs(dir)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	log.Printf("Server root: %s", filepath.ToSlash(path))
+	log.Printf("Server root: %s at %s", filepath.ToSlash(path), mount)
 
 	http.Handle(mount, http.FileServer(http.Dir(dir)))
+
+	return nil
 }
 
-func mustDirExist(dir string) error {
+func IsDirExist(dir string) bool {
 	f, err := os.Stat(dir)
 	if os.IsNotExist(err) {
-		return errors.New(dir + ": No such directory")
+		return false
 	}
 
 	if !f.IsDir() {
-		return errors.New(dir + ": Should be directory")
+		return false
 	}
 
-	return nil
+	return true
 }
