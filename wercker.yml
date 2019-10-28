@@ -5,11 +5,14 @@ build:
         - script:
             name: build
             code: |-
+              go mod download
               mkdir -p build
               export CGO_ENABLED=0
               export GOLDFLAGS='-w -s'
               export GOARCH=amd64 && go build -ldflags "$GOLDFLAGS" -o build/${GOARCH}/fserv ./cmd/fserv
               export GOARCH=arm64 && go build -ldflags "$GOLDFLAGS" -o build/${GOARCH}/fserv ./cmd/fserv
+              export GOARCH=arm GOARM=6 && go build -ldflags "$GOLDFLAGS" -o build/${GOARCH}v${GOARM}/fserv ./cmd/fserv
+              export GOARCH=arm GOARM=7 && go build -ldflags "$GOLDFLAGS" -o build/${GOARCH}v${GOARM}/fserv ./cmd/fserv
 
 deploy:
     steps:
@@ -27,3 +30,13 @@ deploy:
             content-type: binary/octet-stream
             file: build/arm64/fserv
             filename: arm64/fserv
+        - github-upload-asset:
+            token: $GITHUB_TOKEN
+            content-type: binary/octet-stream
+            file: build/armv6/fserv
+            filename: armv6/fserv
+        - github-upload-asset:
+            token: $GITHUB_TOKEN
+            content-type: binary/octet-stream
+            file: build/armv7/fserv
+            filename: armv7/fserv
