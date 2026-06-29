@@ -1,5 +1,6 @@
 [![ci](https://github.com/atotto/fileserver/actions/workflows/ci.yml/badge.svg)](https://github.com/atotto/fileserver/actions/workflows/ci.yml)
 [![release](https://github.com/atotto/fileserver/actions/workflows/release.yml/badge.svg)](https://github.com/atotto/fileserver/actions/workflows/release.yml)
+[![docker](https://github.com/atotto/fileserver/actions/workflows/docker.yml/badge.svg)](https://github.com/atotto/fileserver/actions/workflows/docker.yml)
 
 fileserver
 ==========
@@ -27,3 +28,17 @@ Usage of fserv:
   -cert: cert path (default "${HOME}/.config/fserv/fserv.local+1.pem")
   -key: key path (default "${HOME}/.config/fserv/fserv.local+1-key.pem")
 ```
+
+Docker
+------
+
+```sh
+docker pull ghcr.io/atotto/fileserver:latest
+
+# Serve the current directory on port 8080
+docker run --rm -p 8080:8080 -v "$(pwd):/data" ghcr.io/atotto/fileserver:latest
+```
+
+Supported platforms: `linux/amd64`, `linux/arm64`, `linux/arm/v7`, `linux/arm/v6`
+
+> **TLS:** When using `-tls`, pass `-cert` and `-key` explicitly — the `$HOME` default path is not available inside the container.
